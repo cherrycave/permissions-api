@@ -17,16 +17,10 @@ dependencies {
     implementation("io.ktor:ktor-client-cio")
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
-
-    testImplementation(kotlin("test"))
 }
 
 kotlin {
     jvmToolchain(25)
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 publishing {
