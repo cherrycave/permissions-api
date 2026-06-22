@@ -2,20 +2,18 @@ package dev.boecker.cherrycave.permission.minestom.util
 
 import dev.boecker.cherrycave.permission.minestom.PermissionsAPI
 import dev.boecker.cherrycave.permission.minestom.PermissionsAPI.groupAssignments
-import dev.boecker.cherrycave.permission.minestom.PermissionsCoroutineScope
-import kotlinx.coroutines.launch
 import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.MinecraftServer
 import net.minestom.server.entity.Player
 import java.util.*
 
-internal fun updateAllRanks() {
+internal suspend fun updateAllRanks() {
     MinecraftServer.getConnectionManager().onlinePlayers.forEach { player ->
         updateRank(player)
     }
 }
 
-internal fun updateRank(player: UUID) {
+internal suspend fun updateRank(player: UUID) {
     val player = MinecraftServer.getConnectionManager().onlinePlayers.find { it.uuid.equals(player) }
     if (player == null) {
         return
@@ -24,34 +22,30 @@ internal fun updateRank(player: UUID) {
     updateRank(player)
 }
 
-internal fun updateRank(player: Player) {
+internal suspend fun updateRank(player: Player) {
     val teamManager = MinecraftServer.getTeamManager()
     val existingTeam = teamManager.teams.find { team ->
         team.players.any { teamPlayer -> teamPlayer.uuid.equals(player.uuid) }
     }
 
-    PermissionsCoroutineScope.launch {
+    val playerData = PermissionsAPI.luckperms.user.getUser(player.uuid) ?: return
 
-        val playerData = PermissionsAPI.luckperms.user.getUser(player.uuid) ?: return@launch
+    println(playerData)
 
-        println(playerData)
+    groupAssignments[player.uuid] = playerData.parentGroups
 
-        groupAssignments[player.uuid] = playerData.parentGroups
-
-        if (existingTeam != null) {
-            teamManager.deleteTeam(existingTeam)
-        }
-
-        val weight = 100 - (playerData.metadata.meta["weight"] ?: "10").toInt()
-
-        val team = teamManager.createTeam(
-            "${weight}${player.username}",
-            PermissionsAPI.miniMessage.deserialize(playerData.metadata.prefix ?: ""),
-            NamedTextColor.NAMES.value(playerData.metadata.meta["color"] ?: "gray"),
-            PermissionsAPI.miniMessage.deserialize(playerData.metadata.suffix ?: ""),
-        )
-
-        team.addMember(player.username)
-
+    if (existingTeam != null) {
+        teamManager.deleteTeam(existingTeam)
     }
+
+    val weight = 100 - (playerData.metadata.meta["weight"] ?: "10").toInt()
+
+    val team = teamManager.createTeam(
+        "${weight}${player.username}",
+        PermissionsAPI.miniMessage.deserialize(playerData.metadata.prefix ?: ""),
+        NamedTextColor.NAMES.value(playerData.metadata.meta["color"] ?: "gray"),
+        PermissionsAPI.miniMessage.deserialize(playerData.metadata.suffix ?: ""),
+    )
+
+    team.addMember(player.username)
 }

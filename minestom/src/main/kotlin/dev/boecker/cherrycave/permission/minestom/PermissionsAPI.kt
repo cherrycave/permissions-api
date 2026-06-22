@@ -1,6 +1,7 @@
 package dev.boecker.cherrycave.permission.minestom
 
 import dev.boecker.cherrycave.permission.luckperms.LuckpermsRest
+import dev.boecker.cherrycave.permission.minestom.command.ReloadRanksCommand
 import dev.boecker.cherrycave.permission.minestom.listener.rankInitHandler
 import dev.boecker.cherrycave.permission.minestom.update.luckpermsUpdateHandler
 import dev.boecker.cherrycave.permission.minestom.util.updateAllRanks
@@ -9,7 +10,7 @@ import net.kyori.adventure.text.minimessage.MiniMessage
 import net.minestom.server.MinecraftServer
 import net.minestom.server.event.GlobalEventHandler
 import net.minestom.server.event.player.PlayerLoadedEvent
-import java.util.UUID
+import java.util.*
 
 object PermissionsAPI {
 
@@ -26,6 +27,8 @@ object PermissionsAPI {
 
         globalEventHandler.addListener(PlayerLoadedEvent::class.java, rankInitHandler)
 
+        MinecraftServer.getCommandManager().register(ReloadRanksCommand())
+
         PermissionsCoroutineScope.launch {
             luckperms.event.logBroadcast(luckpermsUpdateHandler)
         }
@@ -36,7 +39,9 @@ object PermissionsAPI {
             field = value
 
             if (value) {
-                updateAllRanks()
+                PermissionsCoroutineScope.launch {
+                    updateAllRanks()
+                }
             } else {
                 val teamManager = MinecraftServer.getTeamManager()
                 teamManager.teams.forEach { team ->
