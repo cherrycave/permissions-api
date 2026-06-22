@@ -27,7 +27,7 @@ internal fun updateRank(player: UUID) {
 internal fun updateRank(player: Player) {
     val teamManager = MinecraftServer.getTeamManager()
     val existingTeam = teamManager.teams.find { team ->
-        team.players.any { player -> player.uuid == player.uuid }
+        team.players.any { teamPlayer -> teamPlayer.uuid == player.uuid }
     }
 
     PermissionsCoroutineScope.launch {
