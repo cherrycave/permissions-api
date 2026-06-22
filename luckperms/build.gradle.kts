@@ -36,24 +36,27 @@ publishing {
     }
 
     publications {
-        filterIsInstance<MavenPublication>().forEach { publication ->
-            publication.pom {
-                name.set(project.name)
-                description.set("luckperms api wrapper")
-                url.set("https://github.com/cherrycave/permissions-api")
+        publications {
+            create<MavenPublication>(project.name) {
+                from(components["kotlin"])
+                pom {
+                    name.set(project.name)
+                    description.set("luckperms api wrapper")
+                    url.set("https://github.com/cherrycave/permissions-api")
 
-                licenses {
-                    license {
-                        name.set("AGPL-3.0 License")
-                        url.set("https://github.com/cherrycave/permissions-api/LICENSE")
+                    licenses {
+                        license {
+                            name.set("AGPL-3.0 License")
+                            url.set("https://github.com/cherrycave/permissions-api/LICENSE")
+                        }
                     }
-                }
 
-                developers {
-                    developer {
-                        name.set("Lou Emma Böcker")
-                        email.set("lou@boecker.dev")
-                        organizationUrl.set("https://www.boecker.dev")
+                    developers {
+                        developer {
+                            name.set("Lou Emma Böcker")
+                            email.set("lou@boecker.dev")
+                            organizationUrl.set("https://www.boecker.dev")
+                        }
                     }
                 }
             }
