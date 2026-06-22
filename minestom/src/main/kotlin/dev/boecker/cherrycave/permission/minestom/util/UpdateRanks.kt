@@ -18,11 +18,8 @@ internal fun updateAllRanks() {
 internal fun updateRank(player: UUID) {
     val player = MinecraftServer.getConnectionManager().onlinePlayers.find { it.uuid.equals(player) }
     if (player == null) {
-        println("player is not online")
         return
     }
-
-    println("player found, updating rank")
 
     updateRank(player)
 }
@@ -41,11 +38,8 @@ internal fun updateRank(player: Player) {
 
         groupAssignments[player.uuid] = playerData.parentGroups
 
-        println("updating rank now")
-
         if (existingTeam != null) {
             teamManager.deleteTeam(existingTeam)
-            println("deleting rank team")
         }
 
         val weight = 100 - (playerData.metadata.meta["weight"] ?: "10").toInt()
@@ -57,10 +51,7 @@ internal fun updateRank(player: Player) {
             PermissionsAPI.miniMessage.deserialize(playerData.metadata.suffix ?: ""),
         )
 
-        println("adding player to team")
-
         team.addMember(player.username)
 
-        println("added to team")
     }
 }
