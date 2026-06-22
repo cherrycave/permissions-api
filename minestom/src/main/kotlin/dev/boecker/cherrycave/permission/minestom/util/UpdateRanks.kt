@@ -1,6 +1,7 @@
 package dev.boecker.cherrycave.permission.minestom.util
 
 import dev.boecker.cherrycave.permission.minestom.PermissionsAPI
+import dev.boecker.cherrycave.permission.minestom.PermissionsAPI.groupAssignments
 import dev.boecker.cherrycave.permission.minestom.PermissionsCoroutineScope
 import kotlinx.coroutines.launch
 import net.kyori.adventure.text.format.NamedTextColor
@@ -15,26 +16,36 @@ internal fun updateAllRanks() {
 }
 
 internal fun updateRank(player: UUID) {
-    val player = MinecraftServer.getConnectionManager().onlinePlayers.find { it.uuid == player }
+    val player = MinecraftServer.getConnectionManager().onlinePlayers.find { it.uuid.equals(player) }
     if (player == null) {
+        println("player is not online")
         return
     }
+
+    println("player found, updating rank")
 
     updateRank(player)
 }
 
-@Suppress("UnstableApiUsage")
 internal fun updateRank(player: Player) {
     val teamManager = MinecraftServer.getTeamManager()
     val existingTeam = teamManager.teams.find { team ->
-        team.players.any { teamPlayer -> teamPlayer.uuid == player.uuid }
+        team.players.any { teamPlayer -> teamPlayer.uuid.equals(player.uuid) }
     }
 
     PermissionsCoroutineScope.launch {
+
         val playerData = PermissionsAPI.luckperms.user.getUser(player.uuid) ?: return@launch
+
+        println(playerData)
+
+        groupAssignments[player.uuid] = playerData.parentGroups
+
+        println("updating rank now")
 
         if (existingTeam != null) {
             teamManager.deleteTeam(existingTeam)
+            println("deleting rank team")
         }
 
         val weight = 100 - (playerData.metadata.meta["weight"] ?: "10").toInt()
@@ -46,6 +57,10 @@ internal fun updateRank(player: Player) {
             PermissionsAPI.miniMessage.deserialize(playerData.metadata.suffix ?: ""),
         )
 
+        println("adding player to team")
+
         team.addMember(player.username)
+
+        println("added to team")
     }
 }

@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "dev.boecker.cherrycave.permissions"
-version = "0.1.1"
+version = rootProject.version
 
 repositories {
     mavenCentral()

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.boecker.cherrycave.permissions"
-version = "0.1.0"
+version = rootProject.version
 
 repositories {
     mavenCentral()
@@ -17,6 +17,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio")
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
+    implementation("io.ktor:ktor-client-okhttp-jvm:3.5.0")
 }
 
 kotlin {
