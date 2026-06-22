@@ -3,7 +3,9 @@ package dev.boecker.cherrycave.permission.minestom.update
 import dev.boecker.cherrycave.permission.luckperms.event.reponse.LPLogBroadcastEvent
 import dev.boecker.cherrycave.permission.luckperms.event.reponse.LPLogBroadcastTargetType
 import dev.boecker.cherrycave.permission.minestom.PermissionsAPI
+import dev.boecker.cherrycave.permission.minestom.PermissionsCoroutineScope
 import dev.boecker.cherrycave.permission.minestom.util.updateRank
+import kotlinx.coroutines.launch
 import net.minestom.server.MinecraftServer
 import kotlin.uuid.ExperimentalUuidApi
 
@@ -17,7 +19,9 @@ val luckpermsUpdateHandler = { event: LPLogBroadcastEvent ->
                 val player = MinecraftServer.getConnectionManager().onlinePlayers.find { it.uuid == updateTarget.uniqueId }
 
                 if (player != null) {
-                    updateRank(player)
+                    PermissionsCoroutineScope.launch {
+                        updateRank(player)
+                    }
                 }
             }
         }
@@ -26,7 +30,9 @@ val luckpermsUpdateHandler = { event: LPLogBroadcastEvent ->
             val groupName = updateTarget.name
 
             PermissionsAPI.groupAssignments.filter { (_, value) -> value.contains(groupName) }.forEach { (uuid, _) ->
-                updateRank(uuid)
+                PermissionsCoroutineScope.launch {
+                    updateRank(uuid)
+                }
             }
         }
         LPLogBroadcastTargetType.Track -> {
